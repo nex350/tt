@@ -1,0 +1,54 @@
+{
+  "share_url": "https://mypikpak.com/s/VOxNPf8FRA2C3w8T1eQ-Ov3ro2", // 单链接模式默认分享地址
+  "share_urls": [ // 多网盘批量模式链接列表
+	"https://mypikpak.com/s/VOxNPf8FRA2C3w8T1eQ-Ov3ro2",
+	"https://mypikpak.com/s/VOjSIy3qiz3wrqOfFb4m-puPo2",
+	"https://mypikpak.com/s/VOjSaLTKwmNHC6BgwWEEgHUJo2",
+	"https://mypikpak.com/s/VOjSeOysGZv2nZ780co6f31qo2",
+	"https://mypikpak.com/s/VOjSm_bDX_kBm1gr_AhmHLe5o2",
+	"https://mypikpak.com/s/VOjSutSF3o83Er6WoQZJEDwuo2",
+	"https://mypikpak.com/s/VOjSvHyAylzOftYPduiqYKr3o2",
+	"https://mypikpak.com/s/VOjST5H9NGDKT-_hF9Y6Ooxpo2"
+  ],
+  "link_workers": 3, // 配置参数：8 个网盘之间的并发数，后期可按网络稳定性自行调整
+  "workers": 3, // 单个网盘内部视频并发数
+  "password": "", // 分享访问密码，公开分享留空
+  "pass_code_token": "", // 可选，手动指定已有 pass_code_token
+  "device_id": "", // 可选，固定 X-Device-ID
+  "output_dir": "pikpak_batch_result", // 输出目录
+  "seek": 1.0, // 按秒截取画面，0 表示严格第一帧
+  "frame_index": 0, // 按帧截取画面，大于 0 时优先于 seek
+  "ffmpeg": "ffmpeg", // ffmpeg 命令名或完整路径
+  "overwrite": false, // 是否覆盖已生成图片
+  "retry_failed_only": false, // 是否只补跑历史失败或缺失截图的视频
+  "retries": 2, // 每个视频失败后的重试次数
+  "retry_delay": 1.5, // 重试基础等待秒数
+  "request_timeout": 30.0, // PikPak API 请求超时秒数
+  "ffmpeg_timeout": 300, // 单个视频 FFmpeg 处理超时秒数
+  "request_delay": 0.15, // 递归目录和分页请求间隔秒数
+  "worker_interval": 0.5, // 配置参数：单个网盘内每个视频任务的启动间隔秒数，后期可自行调整
+  "start_from_link_folder": false, // 链接里带目录 ID 时是否只处理该目录
+  "max_videos": 0, // 最多处理前 N 个视频，0 表示全部
+  "proxy": "http://127.0.0.1:7897", // 单代理模式（兼容），当 proxies 为空时使用
+  "proxies": [ // 多代理轮询：配置多个代理地址，失败时自动切换到下一个
+    "http://127.0.0.1:7897"
+  ],
+  "proxy_switch_interval": 0, // 每个代理使用 N 秒后自动切换到下一个代理（0 表示不自动切换）
+  "proxy_max_failures": 0, // 代理连续请求失败 N 次后自动切换到下一个代理（0 表示不限制）
+  "proxy_api_url": "", // 代理 API 地址，用于从接口动态获取代理列表；留空则不使用（示例：http://api.example.com/proxies）
+  "proxy_api_headers": {}, // 代理 API 请求头（如 {"Authorization": "Bearer xxx"}），可选
+  "proxy_api_refresh": 300, // 代理 API 定时刷新间隔（秒），默认 300（5 分钟）
+  "deepseek": { // AI 二次清洗配置：在最终制表前，把 OCR 结果整体发给 DeepSeek 做结构化清洗
+    "enabled": true, // true 时启用 DeepSeek 后处理；未填 api_key 也会自动跳过
+    "api_key": "sk-128568a3095444998c5ee6f2214248d1", // 这里填你的 DeepSeek API Key
+    "base_url": "https://api.deepseek.com", // OpenAI 兼容接口根地址；代码会自动补全 /chat/completions
+    "model": "deepseek-v4-flash", // 可改成你自己的模型名，官方支持 deepseek-v4-pro 或 deepseek-v4-flash
+    "timeout": 45, // 接口超时秒数
+    "temperature": 0.2, // 低温度，尽量稳定返回结构化结果
+    "max_tokens": 8000, // 最大输出 token，大目录（如44张图）需要更大空间
+    "requirements_prompt": "你是 OCR 制表清洗助手。只保留 Excel 所需数据：团队、地址、代号、数量、扣除、有效数量、扣单原因、备注(网址)、图片名称。\\n规则：\\n1. 团队以实际名称为准，尽量以\"团队\"结尾，去掉水印/时间/天气/速度/车牌号等前缀后缀。\\n2. 地址只保留真实地址。删除团队名、代号、网址、日期、时间、天气、水印、地图区域文字、经纬度、打卡、已拍x张、车牌号（渝B·035D等）等无关内容。地址换行到第二行时必须合并到第一行末尾。地址括号必须完整闭合，左括号后所有文字必须在右括号内。地址前缀（省/市/区/街道）不可重复拼接，如重庆市...重庆市...只保留第一个。地址尾部若出现非常规汉字乱码（鲹锴飈扪等生僻字）或脏 ASCII（里Y、公里123等），直接去掉。\\n3. 代号只保留真实代号，不要混入地址或团队。\\n4. 备注只保留网址域名。域名缺了前缀或后缀（如缺点号、.sho缺一个字母、字母O误读为0等）要尝试修正补全为完整域名。域名带http://、https://、www.前缀或\"网址：\"标识的去掉多余前缀只保留域名本体。\\n5. 数量使用输入现有值，不臆造数字。\\n6. row_id 顺序必须与输入一致，不丢行不增行。\\n7. 只输出 JSON: {\\\"rows\\\":[...]}，不要解释。"
+  },
+  "api_host": "api-drive.mypikpak.com", // PikPak Drive API 域名
+  "user_host": "user.mypikpak.com", // PikPak captcha API 域名
+  "list_only": false // 是否只获取视频列表不截帧
+}
